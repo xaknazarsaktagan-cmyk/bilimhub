@@ -447,3 +447,5 @@ Object.assign(kk, {
 });
 
 Object.assign(kk, {"Регистрация":"Тіркелу","Firebase не настроен: вставьте ключи проекта в frontend/assets/firebase-config.js.":"Firebase бапталмаған: жоба параметрлерін frontend/assets/firebase-config.js файлына енгізіңіз."});
+
+Object.assign(kk, {"Добро пожаловать в Bilim":"Bilim-ге қош келдіңіз"});

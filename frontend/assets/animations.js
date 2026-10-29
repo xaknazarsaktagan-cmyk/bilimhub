@@ -1,11 +1,5 @@
 const header=document.querySelector('.site-header');
-const menu=document.querySelector('.menu-toggle');
 const motion=matchMedia('(prefers-reduced-motion:reduce)');
-function closeMenu(){header.classList.remove('menu-open');menu.setAttribute('aria-expanded','false');}
-menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));header.classList.toggle('menu-open',open);});
-header.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&header.classList.contains('menu-open')){closeMenu();menu.focus();}});
-const breakpoint=matchMedia('(min-width:801px)');breakpoint.addEventListener('change',closeMenu);
 function headerScroll(){header.classList.toggle('scrolled',scrollY>20);}window.addEventListener('scroll',headerScroll,{passive:true});headerScroll();
 let animationContext;let ownedTriggers=[];
 function animate(){
@@ -32,4 +26,4 @@ for(const card of document.querySelectorAll('.path-card')){
  card.addEventListener('pointermove',e=>{if(motion.matches||!canHover.matches)return;const b=card.getBoundingClientRect();card.querySelector('.path-art').style.transform=`perspective(1000px) rotateX(${-(e.clientY-b.top-b.height/2)/b.height*5}deg) rotateY(${(e.clientX-b.left-b.width/2)/b.width*5}deg)`;});
  card.addEventListener('pointerleave',()=>card.querySelector('.path-art').style.removeProperty('transform'));
 }
-window.addEventListener('pagehide',event=>{if(event.persisted)return;ownedTriggers.forEach(t=>t.kill());animationContext?.revert();window.removeEventListener('scroll',headerScroll);motion.removeEventListener('change',animate);breakpoint.removeEventListener('change',closeMenu);});
+window.addEventListener('pagehide',event=>{if(event.persisted)return;ownedTriggers.forEach(t=>t.kill());animationContext?.revert();window.removeEventListener('scroll',headerScroll);motion.removeEventListener('change',animate);});
