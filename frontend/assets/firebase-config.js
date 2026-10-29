@@ -1,10 +1,9 @@
-// Вставьте сюда ключи вашего Firebase-проекта:
-// Firebase Console → ⚙ Project settings → General → Your apps → Web app → SDK setup and configuration.
 export const firebaseConfig = {
-  apiKey: 'PASTE_API_KEY',
-  authDomain: 'PASTE_PROJECT_ID.firebaseapp.com',
-  projectId: 'PASTE_PROJECT_ID',
-  storageBucket: 'PASTE_PROJECT_ID.appspot.com',
-  messagingSenderId: 'PASTE_SENDER_ID',
-  appId: 'PASTE_APP_ID'
+  apiKey : "AIzaSyBY-EDjm_iduhNy_St5RlU4KbnuYY4k2EA" , 
+  authDomain : "korkem-cours.firebaseapp.com" , 
+  projectId : "korkem-cours" , 
+  storageBucket : "korkem-cours.firebasestorage.app" , 
+  messagingSenderId : "995859302892" , 
+  appId : "1:995859302892:web:36e25f86006b5cdc1a58c9" , 
+  measurementId : "G-BRE5X6ZX4D" 
 };
