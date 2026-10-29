@@ -1,0 +1,10 @@
+{
+  "name": "bilim-student-assessment",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Студенттердің білімін тексеруге арналған бағдарламалық қамтамасыз етуді әзірлеу",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}

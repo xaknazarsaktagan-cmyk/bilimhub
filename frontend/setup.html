@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#fafafa"><script src="/assets/preferences.js"></script><title>Bilim — Первичная настройка</title><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/styles.css"></head>
+<body><main class="login-main" style="min-height:100vh"><div class="login-box" style="max-width:560px">
+<a class="brand" href="/"><span class="logo">b</span>bilim</a>
+<h2 style="margin-top:24px">Первичная настройка Firebase</h2>
+<p class="muted" style="margin:6px 0 20px">Один раз создаёт администратора, демонстрационных учителя и студента, пять предметов и стартовые тесты. Повторный запуск безопасен: уже созданное не дублируется.</p>
+<form id="setup-form">
+<div class="field"><label for="admin-password">Пароль администратора (admin@bilim.local)</label><input class="input" id="admin-password" type="password" minlength="10" value="Admin123!" autocomplete="off" required></div>
+<div class="field"><label for="teacher-password">Пароль учителя (teacher@bilim.local)</label><input class="input" id="teacher-password" type="password" minlength="10" value="Teacher123!" autocomplete="off" required></div>
+<div class="field"><label for="student-password">Пароль студента (student@bilim.local)</label><input class="input" id="student-password" type="password" minlength="10" value="Student123!" autocomplete="off" required></div>
+<button class="btn primary full" type="submit">Запустить настройку</button>
+</form>
+<pre id="log" class="code code-display mt" style="white-space:pre-wrap;min-height:60px" aria-live="polite"></pre>
+<p class="caption mt">После успешной настройки перейдите на <a href="/">страницу входа</a>. Эту страницу можно удалить из проекта.</p>
+</div></main><script type="module" src="/assets/setup.js"></script></body></html>

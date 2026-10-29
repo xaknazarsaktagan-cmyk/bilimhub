@@ -1,0 +1,63 @@
+rules_version = '2';
+// Правила безопасности Cloud Firestore для Bilim.
+// Загрузите: Firebase Console → Firestore Database → Rules → вставьте этот файл → Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Email первого администратора. Только он может создать себе роль admin (см. страницу /setup.html).
+    // Если меняете, измените и в setup.js.
+    function bootstrapEmail() { return 'admin@bilim.local'; }
+
+    function signedIn()   { return request.auth != null; }
+    function meDoc()      { return get(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function active()     { return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && meDoc().data.blocked == false; }
+    function isAdmin()    { return active() && meDoc().data.role == 'admin'; }
+    function isTeacher()  { return active() && meDoc().data.role == 'teacher'; }
+    function isStudent()  { return active() && meDoc().data.role == 'student'; }
+    function teaches(subjectId) { return isTeacher() && subjectId in meDoc().data.subject_ids; }
+
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create: if isAdmin()
+        || (signedIn() && request.auth.uid == uid
+            && request.resource.data.keys().hasOnly(['name','email','role','blocked','subject_ids','created_at'])
+            && ((request.resource.data.role == 'student' && request.resource.data.blocked == false) || (request.resource.data.role == 'teacher' && request.resource.data.blocked == true) || (request.resource.data.role == 'admin' && request.resource.data.blocked == false))
+            && request.resource.data.subject_ids.size() == 0
+            && (request.resource.data.role in ['student','teacher']
+                || (request.resource.data.role == 'admin' && request.auth.token.email == bootstrapEmail())));
+      // Пользователь может менять только своё имя; администратор — всё.
+      allow update: if isAdmin()
+        || (active() && request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name']));
+      allow delete: if isAdmin();
+    }
+
+    match /subjects/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /tests/{id} {
+      allow read: if active() && (resource.data.published == true || isAdmin() || teaches(resource.data.subject_id));
+      allow create: if isAdmin() || teaches(request.resource.data.subject_id);
+      allow update: if isAdmin()
+        || (teaches(resource.data.subject_id) && request.resource.data.subject_id == resource.data.subject_id);
+      allow delete: if isAdmin() || teaches(resource.data.subject_id);
+    }
+
+    match /attempts/{id} {
+      allow read: if active() && (resource.data.user_id == request.auth.uid || isAdmin() || teaches(resource.data.subject_id));
+      allow create: if isStudent() && request.resource.data.user_id == request.auth.uid
+        && request.resource.data.status in ['in_progress','pending'];
+      // Студент: сохраняет ответы и сдаёт свою незавершённую попытку.
+      // Учитель: выставляет оценку работам своих предметов.
+      allow update:
+        if (isStudent() && resource.data.user_id == request.auth.uid && resource.data.status == 'in_progress'
+            && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['answers','score','auto_score','status','submitted_at','graded_at']))
+        || (teaches(resource.data.subject_id)
+            && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['score','feedback','status','reviewer_id','graded_at']));
+      allow delete: if isAdmin();
+    }
+  }
+}
