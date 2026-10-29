@@ -26,3 +26,5 @@ Core Web Vitals на реальных устройствах и production-се�
 Мәтіндер каруселі: 4 секунд сайын 0→1→2→3→0 ретімен ауысуы, 0.7 секундтық transition, батырмалардың тұрақты орны, pause/manual таңдау, kk/ru, 375/768/1024/1440 px тексерілді. Reduced motion режимінде мәтін автоматты ауыса береді, тек қозғалысты transition өшеді. Браузерде 0 pageerror.
 
 Autoplay түзетуі: курсор мәтін үстінде тұрғанда, индикаторда фокус қалғанда және pause→resume батырмасынан кейін 4 секундтық ауысу тексерілді. Өздігінен ауысуды тек pause батырмасы тоқтатады (сондай-ақ бет көрінбегенде таймер уақытша тоқтайды). Қара тақырыпта header preferences контейнерінің background түсі transparent, box-shadow none.
+
+Упрощение нижней части: в main остались home → paths → about → auth. Preview, journey и courses полностью удалены, иконок/дополнительных canvas в paths нет. Scroll-reveal, регистрация student/teacher с сохранением роли, темы, kk/ru и 375/768/1024/1440 px проверены; 0 pageerror и GSAP missing-target предупреждений.
