@@ -30,3 +30,5 @@ html[data-theme=dark] .landing-page .hero-story h2{color:#dfdff2}html[data-theme
 @media(max-width:800px){.landing-page .hero h1.welcome-title{font-size:40px;letter-spacing:-1.6px}.hero-story p{font-size:12px}.landing-page .hero-story h2{font-size:17px}.hero-stories{margin-top:20px}}
 @media(max-width:600px){.landing-page .hero h1.welcome-title{font-size:39px;max-width:360px;letter-spacing:-1.7px;margin:0 auto}.hero-stories{max-width:390px;margin:22px auto 0}.landing-page .hero-story h2{font-size:18px;letter-spacing:-.4px}.hero-story p{font-size:13px;line-height:1.8}.story-controls{margin-top:12px}.landing-page .hero .hero-actions{margin-top:20px}}
 @media(prefers-reduced-motion:reduce){.hero-story{transition:none;transform:none;filter:none}}
+/* The header controls have separate surfaces, never a pale shared backing. */
+.landing-page .site-header .header-settings .preferences{background:transparent;border:0;box-shadow:none;border-radius:0;backdrop-filter:none}
