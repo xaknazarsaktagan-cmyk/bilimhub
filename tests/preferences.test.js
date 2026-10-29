@@ -48,3 +48,13 @@ test('Kazakh dates use real month names even when runtime locale data is incompl
  assert.equal(formatDate(timestamp,true,'kk'),'29 қазан 2026 ж.');assert.equal(formatDate(timestamp,false,'kk'),'29 қазан, 09:15');
  assert.equal(formatDate('invalid',false,'kk'),'—');
 });
+
+test('landing copy with a Latin brand prefix is translated as a whole',()=>{
+ const previous=globalThis.document;globalThis.document={documentElement:{lang:'kk'}};
+ try{assert.match(markup('<p>Bilim — современная платформа для обучения, развития и открытия новых возможностей.</p>'),/Bilim — білім алуға/);}finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+});
+
+test('unconfigured Firebase reports a usable error without initializing the remote SDK',async()=>{
+ const {api}=await import('../frontend/assets/common.js');
+ await assert.rejects(api('/auth/me'),error=>error.status===503&&/Firebase/.test(error.message));
+});

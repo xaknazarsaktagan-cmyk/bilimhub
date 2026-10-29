@@ -1,5 +1,7 @@
 import {tr,markup,locale,formatDate} from './i18n.js';
-import {api as backendApi} from './backend.js';
+import {firebaseConfig} from './firebase-config.js';
+let backendModule;
+function loadBackend(){return backendModule ||= import('./backend.js').catch(error=>{backendModule=null;throw error;});}
 export const $=(s,root=document)=>root.querySelector(s);
 export const $$=(s,root=document)=>[...root.querySelectorAll(s)];
 export const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -7,7 +9,10 @@ export const roles={get student(){return tr("Студент");},get teacher(){re
 export let csrf='';
 export function setCsrf(v){csrf=v;}
 export async function api(path,method='GET',body){
- try{return await backendApi(path,method,body);}
+ try{
+  if(Object.values(firebaseConfig).some(value=>String(value).includes('PASTE_'))){const error=new Error('Firebase не настроен: вставьте ключи проекта в frontend/assets/firebase-config.js.');error.status=503;throw error;}
+  const {api:backendApi}=await loadBackend();return await backendApi(path,method,body);
+ }
  catch(e){e.message=tr(e.message||"Ошибка запроса.");throw e;}
 }
 export function toast(message){const el=$('#toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.add('hidden'),4500);}

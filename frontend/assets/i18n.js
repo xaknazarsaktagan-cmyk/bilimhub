@@ -16,7 +16,7 @@ export function markup(html){
  return html.split(/(<[^>]*>)/g).map(part=>part.startsWith('<')?
   part.replace(/(placeholder|title|aria-label)="([^"]*)"/g,(_,name,value)=>`${name}="${translateFragment(value)}"`):translateFragment(part)).join('');
 }
-function translateFragment(value){return value.replace(/[\p{Script=Cyrillic}][^<>"\r\n]*/gu,part=>tr(part));}
+function translateFragment(value){const full=tr(value);if(full!==value)return full;return value.replace(/[\p{Script=Cyrillic}][^<>"\r\n]*/gu,part=>tr(part));}
 const originalText=new WeakMap(),originalAttributes=new WeakMap();
 export function localizeStatic(root){
  if(!root)return;
