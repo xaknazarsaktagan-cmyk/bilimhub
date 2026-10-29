@@ -9,13 +9,13 @@ if(dialog){
  function open(link){
   if(dialog.open)return;
   opener=link;closing=false;animation?.cancel();
-  dialog.showModal();document.documentElement.classList.add('auth-is-open');
-  if(!reduced.matches)animation=shell.animate([{opacity:0,transform:'perspective(1100px) rotateX(34deg) translateY(38px) scale(.9)',filter:'blur(6px)'},{opacity:1,transform:'perspective(1100px) rotateX(0) translateY(0) scale(1)',filter:'blur(0)'}],{duration:720,easing:'cubic-bezier(.16,1,.3,1)'});
+  dialog.classList.remove('is-closing');dialog.showModal();document.documentElement.classList.add('auth-is-open');
+  if(!reduced.matches)animation=shell.animate([{opacity:0,transform:'translateY(18px) scale(.96)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:560,easing:'cubic-bezier(.22,1,.36,1)'});
  }
  async function close(){
-  if(!dialog.open||closing)return;closing=true;animation?.cancel();
-  if(!reduced.matches){animation=shell.animate([{opacity:1,transform:'perspective(1100px) rotateX(0) scale(1)'},{opacity:0,transform:'perspective(1100px) rotateX(16deg) translateY(20px) scale(.96)'}],{duration:260,easing:'ease-in',fill:'forwards'});try{await animation.finished;}catch{}}
-  dialog.close();animation?.cancel();closing=false;
+  if(!dialog.open||closing)return;closing=true;const current=getComputedStyle(shell);const start={opacity:current.opacity,transform:current.transform};animation?.cancel();dialog.classList.add('is-closing');
+  if(!reduced.matches){animation=shell.animate([start,{opacity:0,transform:'translateY(10px) scale(.98)'}],{duration:220,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});try{await animation.finished;}catch{}}
+  dialog.close();animation?.cancel();dialog.classList.remove('is-closing');closing=false;
  }
  // Capture prevents anchor scrolling; the existing login.js still selects the mode.
  document.addEventListener('click',event=>{const link=event.target.closest('[data-auth]');if(!link)return;event.preventDefault();open(link);},true);
