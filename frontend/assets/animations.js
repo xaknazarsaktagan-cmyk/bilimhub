@@ -14,7 +14,6 @@ function animate(){
   gsap.fromTo('.preview-panel',{y:30,rotateX:5},{y:-12,rotateX:0,ease:'none',scrollTrigger:{trigger:'.platform-stage',start:'top bottom',end:'bottom top',scrub:1}});
   gsap.to('.achievement',{y:-32,ease:'none',scrollTrigger:{trigger:'.platform-stage',start:'top bottom',end:'bottom top',scrub:1}});
   gsap.to('.assignment',{y:24,ease:'none',scrollTrigger:{trigger:'.platform-stage',start:'top bottom',end:'bottom top',scrub:1}});
-  ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onUpdate:self=>document.dispatchEvent(new CustomEvent('bilim:scene-scroll',{detail:self.progress}))});
  });
  ownedTriggers=ScrollTrigger.getAll();
 }
