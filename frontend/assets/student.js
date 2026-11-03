@@ -1,4 +1,4 @@
-import {tr,markup,locale} from './i18n.js';
+import {tr,markup,locale,localizeQuestion} from './i18n.js';
 import {$,$$,esc,api,icon,date,status,toast,busy,confirmAction} from './common.js';
 import {state,heading,stats,empty,attemptsTable,exportCSV} from './dashboard.js';
 const subjectIcons=['code','grid','mobile','database','book'];
@@ -36,7 +36,7 @@ async function quiz(main,id){
   saveQueue.catch(()=>{});
  }
  function draw(){
-  state.quizDraft={id:a.id,answers,index};const q=a.content.questions[index];$('#question').innerHTML=`<span class="eyebrow">${tr("Вопрос")} ${index+1} ${tr("из 20")}</span><h2>${esc(q.text)}</h2><fieldset style="border:0;padding:0;margin:0"><legend class="hidden">${tr("Выберите ответ")}</legend>${q.options.map((o,j)=>`<label class="option"><input type="radio" name="answer" value="${j}" ${answers[index]===j?'checked':''}><span class="option-letter">${'ABCD'[j]}</span><span>${esc(o)}</span></label>`).join('')}</fieldset><div class="row between mt"><button class="btn" id="prev" ${index===0?'disabled':''}>← ${tr("Назад")}</button><button class="btn ${index===19?'accent':''}" id="next">${index===19?tr("К завершению"):tr("Далее →")}</button></div>`;
+  state.quizDraft={id:a.id,answers,index};const q=localizeQuestion(a.content.questions[index]);$('#question').innerHTML=`<span class="eyebrow">${tr("Вопрос")} ${index+1} ${tr("из 20")}</span><h2>${esc(q.text)}</h2><fieldset style="border:0;padding:0;margin:0"><legend class="hidden">${tr("Выберите ответ")}</legend>${q.options.map((o,j)=>`<label class="option"><input type="radio" name="answer" value="${j}" ${answers[index]===j?'checked':''}><span class="option-letter">${'ABCD'[j]}</span><span>${esc(o)}</span></label>`).join('')}</fieldset><div class="row between mt"><button class="btn" id="prev" ${index===0?'disabled':''}>← ${tr("Назад")}</button><button class="btn ${index===19?'accent':''}" id="next">${index===19?tr("К завершению"):tr("Далее →")}</button></div>`;
   $$('input[name=answer]').forEach(input=>input.onchange=()=>{answers[index]=Number(input.value);save();map();});
   $('#prev').onclick=()=>{if(index>0){index--;draw();}};
   $('#next').onclick=()=>{if(index<19){index++;draw();}else $('#finish').focus();};map();

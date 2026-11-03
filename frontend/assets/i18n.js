@@ -1,4 +1,5 @@
 import {kk} from './locales.js';
+import {questionKk} from './question-locales.js';
 export function language(){return typeof document!=='undefined'&&document.documentElement.lang==='kk'?'kk':'ru';}
 export function locale(){return language()==='kk'?'kk-KZ':'ru-RU';}
 export function tr(value,lang=language()){
@@ -40,4 +41,11 @@ export function formatDate(value,full=false,lang=language()){
   return full?`${day} ${month} ${date.getFullYear()} ж.`:`${day} ${month}, ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
  }
  return full?date.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}):date.toLocaleString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+// Translate only known authored questions; preserve teacher content and stored answers.
+export function localizeQuestion(question,lang=language()){
+ const translation=lang==='kk'&&Object.hasOwn(questionKk,question.text)?questionKk[question.text]:null;
+ if(!translation)return question;
+ return {...question,text:translation.text,options:question.options.map(option=>Object.hasOwn(translation.options,option)?translation.options[option]:option)};
 }
