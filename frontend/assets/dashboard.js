@@ -92,15 +92,27 @@ let routeVersion=0;
 export async function route(){
  const version=++routeVersion;state.cleanup();state.cleanup=()=>{};state.beforeLanguageChange=null;
  const [view,id]=(location.hash.slice(1)||'home').split('/');
+ const animate=window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+ const previousLink=$('[data-nav].active');
  const activeView=({subject:'subjects',quiz:'subjects',practice:'subjects',result:state.user.role==='teacher'?'reviews':'results',edit:'tests'})[view]||view;
  $$('[data-nav]').forEach(link=>{
   const active=link.dataset.nav===activeView;
+  if(active && animate && previousLink && previousLink!==link){
+   const from=previousLink.getBoundingClientRect();
+   const to=link.getBoundingClientRect();
+   link.style.setProperty('--nav-from-x',`${from.left-to.left}px`);
+   link.style.setProperty('--nav-from-y',`${from.top-to.top}px`);
+  }else{
+   link.style.removeProperty('--nav-from-x');
+   link.style.removeProperty('--nav-from-y');
+  }
   link.classList.toggle('active',active);
   if(active)link.setAttribute('aria-current','page');
   else link.removeAttribute('aria-current');
  });
  $('#crumb').textContent=({home:tr("Обзор"),subjects:tr("Мои предметы"),subject:tr("Предмет"),quiz:tr("Теоретический тест"),practice:tr("Практическое задание"),results:tr("Результаты"),result:tr("Работа"),tests:tr("Управление тестами"),edit:tr("Редактор теста"),reviews:tr("Работы студентов"),users:tr("Пользователи"),profile:tr("Профиль")})[view]||tr("Кабинет");
  const main=$('#main');
+ main.classList.remove('dashboard-page-enter');
  main.dataset.view=view;
  main.replaceChildren(dashboardLoading.cloneNode(true));
  try{
@@ -110,9 +122,11 @@ export async function route(){
   else if(state.user.role==='student')await studentPage(main,view,id);
   else if(state.user.role==='teacher')await teacherPage(main,view,id);
   else await adminPage(main,view,id);
+  if(version!==routeVersion)return;
   const statistics=main.querySelector(':scope > .stats');
-  if(view==='home' && version===routeVersion && statistics)mountActivity(statistics,state.attempts);
- }catch(e){if(e.status===401){location.href='/';return;}main.innerHTML=`<div class="card pad"><h2>${tr("Не удалось открыть страницу")}</h2><p class="error">${esc(e.message)}</p><a href="#home" class="btn">${tr("Вернуться к обзору")}</a></div>`;}
+  if(view==='home' && statistics)mountActivity(statistics,state.attempts);
+  if(animate)main.classList.add('dashboard-page-enter');
+ }catch(e){if(version!==routeVersion)return;if(e.status===401){location.href='/';return;}main.innerHTML=`<div class="card pad"><h2>${tr("Не удалось открыть страницу")}</h2><p class="error">${esc(e.message)}</p><a href="#home" class="btn">${tr("Вернуться к обзору")}</a></div>`;}
 }
 try{
  const r=await api('/auth/me');setCsrf(r.csrf);state.user=r.user;

@@ -260,10 +260,21 @@ html[data-theme="dark"] .dashboard-wordmark { color: #fff; }
 .dashboard-role-meter + .dashboard-role-meter { margin-top: 15px; }
 .dashboard-role-meter .dashboard-meter { margin-top: 7px; }
 
+#app .nav-link { position: relative; }
+
 #app .nav-link.active {
   color: var(--accent);
   background: var(--soft);
-  box-shadow: inset 2px 0 var(--accent);
+}
+
+#app .nav-link.active::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  border-radius: 4px;
+  background: var(--accent);
+  pointer-events: none;
 }
 
 #main .section-head {
@@ -350,11 +361,18 @@ body[data-role] .modal .btn:not(:disabled):active {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  #main[data-view="home"] > :is(.dashboard-overview, .stats) {
-    animation: dashboard-enter 320ms ease-out both;
+  #main.dashboard-page-enter {
+    animation: dashboard-enter 280ms cubic-bezier(.22, 1, .36, 1);
   }
 
-  #main[data-view="home"] > .stats { animation-delay: 70ms; }
+  #app .nav-link.active::before {
+    animation: dashboard-nav-slide 270ms cubic-bezier(.22, 1, .36, 1);
+  }
+
+  @keyframes dashboard-nav-slide {
+    from { transform: translate(var(--nav-from-x, 0px), var(--nav-from-y, 0px)); }
+    to { transform: translate(0, 0); }
+  }
 
   .dashboard-sculpture {
     animation: dashboard-float 4s ease-in-out infinite alternate;
