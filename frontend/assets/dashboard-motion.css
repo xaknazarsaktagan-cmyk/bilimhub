@@ -448,6 +448,28 @@ body[data-role] .modal .btn:not(:disabled):active {
 .activity-heading h2, .activity-heading p { margin: 0; }
 .activity-heading p, .activity-summary span, .activity-works p { color: var(--muted); }
 
+.activity-total {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+}
+
+.activity-total > strong {
+  font-size: 34px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.activity-total small {
+  display: block;
+  color: var(--muted);
+}
+
+.activity-selected-label {
+  font-size: 12px;
+}
+
 .activity-period {
   display: flex;
   gap: 4px;
@@ -471,14 +493,14 @@ body[data-role] .modal .btn:not(:disabled):active {
 
 .activity-bars {
   display: grid;
-  grid-template-columns: repeat(var(--days), minmax(29px,1fr));
+  grid-template-columns: repeat(var(--days), minmax(34px,1fr));
   gap: clamp(4px, 1vw, 14px);
   min-width: calc(var(--days) * 37px);
 }
 
 .activity-day {
   display: grid;
-  grid-template-rows: 112px auto;
+  grid-template-rows: auto 88px auto;
   gap: 7px;
   border: 0;
   border-radius: 6px;
@@ -498,13 +520,12 @@ body[data-role] .modal .btn:not(:disabled):active {
   align-items: flex-end;
   justify-content: center;
   height: 100%;
-  padding: 0 22%;
-  border-radius: 8px;
-  background: var(--bg);
+  padding: 0 5px;
+  border-bottom: 1px solid var(--line);
 }
 
 .activity-bar-track > span {
-  width: 100%;
+  width: min(100%, 28px);
   height: max(3px, calc(var(--fill) * 100%));
   border-radius: 6px;
   background: color-mix(in srgb, var(--accent) 55%, var(--line));
@@ -512,7 +533,8 @@ body[data-role] .modal .btn:not(:disabled):active {
 }
 
 .activity-day[aria-pressed="true"] { color: var(--ink); font-weight: 700; }
-.activity-day:is(:hover, [aria-pressed="true"]) .activity-bar-track { background: var(--soft); }
+.activity-day:is(:hover, [aria-pressed="true"]) { background: var(--soft); }
+.activity-count { font-size: 14px; font-variant-numeric: tabular-nums; }
 .activity-day[aria-pressed="true"] .activity-bar-track > span { background: var(--accent); }
 .activity-date { font-size: 11px; white-space: nowrap; }
 
@@ -542,7 +564,7 @@ body[data-role] .modal .btn:not(:disabled):active {
 
 @media (max-width: 600px) {
   .activity-detail { grid-template-columns: 1fr; gap: 8px; }
-  .activity-day { grid-template-rows: 86px auto; }
+  .activity-day { grid-template-rows: auto 65px auto; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -33,12 +33,19 @@ export function localizeStatic(root){
  }
 }
 
+const monthsKk=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];
+
+export function formatCalendarDay(date,lang=language()){
+ return lang==='kk'
+  ? `${date.getDate()} ${monthsKk[date.getMonth()]}`
+  : date.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+}
+
 export function formatDate(value,full=false,lang=language()){
  const date=new Date(value);if(Number.isNaN(date.getTime()))return '—';
  if(lang==='kk'){
-  const months=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];
-  const day=date.getDate(),month=months[date.getMonth()];
-  return full?`${day} ${month} ${date.getFullYear()} ж.`:`${day} ${month}, ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+  const day=formatCalendarDay(date,lang);
+  return full?`${day} ${date.getFullYear()} ж.`:`${day}, ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
  }
  return full?date.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}):date.toLocaleString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
 }
