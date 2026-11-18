@@ -14,13 +14,6 @@
   min-height: 100svh;
 }
 
-@font-face {
-  font-family: "Bilim Manrope";
-  src: url("./fonts/manrope-latin.woff2") format("woff2");
-  font-weight: 200 800;
-  font-display: swap;
-}
-
 .dashboard-loading p {
   position: absolute;
   width: 1px;
@@ -40,12 +33,13 @@ html:lang(kk) .dashboard-loading [lang="ru"] {
 .dashboard-wordmark {
   display: inline-flex;
   color: var(--ink);
-  font-family: "Bilim Manrope", system-ui, sans-serif;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
   font-size: clamp(54px, 11vw, 98px);
-  font-weight: 800;
-  letter-spacing: -.085em;
+  font-weight: 700;
+  letter-spacing: -.045em;
   line-height: 1.16;
-  padding-inline-end: .085em;
+  padding-inline-end: .12em;
 }
 
 html[data-theme="dark"] .dashboard-wordmark { color: #fff; }
@@ -171,6 +165,76 @@ html[data-theme="dark"] .dashboard-wordmark { color: #fff; }
   filter: drop-shadow(3px 5px 0 color-mix(in srgb, var(--accent) 23%, transparent));
 }
 
+.dashboard-result-wrap {
+  padding: 24px clamp(20px, 4vw, 52px) 30px 12px;
+  perspective: 750px;
+}
+
+.dashboard-result-card {
+  display: grid;
+  gap: 13px;
+  max-width: 330px;
+  margin-inline: auto;
+  padding: clamp(17px, 2vw, 28px);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
+  border-radius: 20px;
+  background: var(--soft);
+  box-shadow: 0 5px 0 var(--line), 0 12px 26px color-mix(in srgb, #000 15%, transparent);
+  color: var(--ink);
+}
+
+.dashboard-result-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.dashboard-result-label, .dashboard-result-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-result-label { font-weight: 600; }
+.dashboard-result-action { color: var(--accent); font-weight: 600; }
+.dashboard-result-score { color: var(--muted); line-height: 1; }
+.dashboard-result-score strong {
+  color: var(--ink);
+  font-size: clamp(40px, 4vw, 64px);
+  letter-spacing: -.065em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-result-track {
+  overflow: hidden;
+  height: 5px;
+  background: var(--line);
+  border-radius: 5px;
+}
+
+.dashboard-result-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a.dashboard-result-card { transition: transform 220ms ease; }
+  .dashboard-result-score { animation: dashboard-enter 420ms ease-out both; }
+  .dashboard-result-track > span { animation: dashboard-score-fill 750ms ease-out both; }
+
+  @keyframes dashboard-score-fill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  a.dashboard-result-card:hover { transform: translateY(-4px) rotateX(5deg) rotateY(-5deg); }
+}
+
 .dashboard-meter {
   display: block;
   width: 100%;
@@ -222,7 +286,7 @@ html[data-theme="dark"] .dashboard-wordmark { color: #fff; }
   transition: transform 200ms ease, color 200ms ease;
 }
 
-#app :is(.btn, .nav-link, .text-button, .subject-card, a.stat):focus-visible,
+#app :is(.btn, .nav-link, .text-button, .subject-card, a.stat, a.dashboard-result-card):focus-visible,
 body[data-role] .modal .btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -275,6 +339,7 @@ body[data-role] .modal .btn:not(:disabled):active {
 
 @media (max-width: 600px) {
   .dashboard-overview { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-result-wrap { padding: 0 24px 28px; }
   .dashboard-art {
     min-height: 145px;
     overflow: hidden;

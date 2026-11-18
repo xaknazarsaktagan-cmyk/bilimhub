@@ -6,22 +6,22 @@ import {teacherPage} from './teacher.js';
 import {adminPage} from './admin.js';
 export const state={user:null,subjects:[],tests:[],attempts:[],cleanup:()=>{}};
 export function heading(title,subtitle,action=''){return `<div class="page-heading"><div><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div>${action}</div>`;}
-export function overview(title, subtitle, action) {
- const symbol = {student:'book', teacher:'check', admin:'users'}[state.user.role];
+export function overview(title, subtitle, action, feature) {
+ const symbol = state.user.role === 'teacher' ? 'check' : 'users';
  return `<section class="dashboard-overview">
   <div class="dashboard-intro">
    <h1 aria-label="${esc(title)}">${title.split(/\s+/).map(word=>`<span class="dashboard-title-word" aria-hidden="true">${esc(word)}</span>`).join(' ')}</h1>
    <p>${esc(subtitle)}</p>
    ${action}
   </div>
-  <div class="dashboard-art" aria-hidden="true">
+  ${feature ?? `<div class="dashboard-art" aria-hidden="true">
    <div class="dashboard-orbit"></div>
    <div class="dashboard-sculpture">
     <span class="dashboard-sculpture-base"></span>
     <span class="dashboard-sculpture-layer"></span>
     <span class="dashboard-sculpture-face">${icon(symbol)}</span>
    </div>
-  </div>
+  </div>`}
  </section>`;
 }
 export function stats(items) {

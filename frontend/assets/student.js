@@ -3,12 +3,39 @@ import {$,$$,esc,api,icon,date,status,toast,busy,confirmAction} from './common.j
 import {state,heading,overview,stats,empty,attemptsTable,exportCSV} from './dashboard.js';
 const subjectIcons=['code','grid','mobile','database','book'];
 function cards(){return `<div class="grid three">${state.subjects.map((s,i)=>{const tests=state.tests.filter(t=>t.subject_id===s.id),done=state.attempts.filter(a=>a.subject_id===s.id&&a.status==='graded');return `<a class="card subject-card" href="#subject/${s.id}"><div class="subject-top"><span class="subject-icon">${icon(subjectIcons[i])}</span><span class="subject-number">${s.number}</span></div><h3>${esc(s.name)}</h3><p>${esc(tr(s.description))}</p><div class="subject-bottom"><small>${tests.filter(t=>t.kind==='theory').length} ${tr("теория ·")} ${tests.filter(t=>t.kind==='practice').length} ${tr("практика")}${done.length?' · '+done.length+tr(" завершено"):''}</small><span class="arrow">↗</span></div></a>`;}).join('')}</div>`;}
+function latestResult(graded) {
+ const timestamp = attempt => attempt.graded_at ?? attempt.submitted_at ?? attempt.started_at ?? 0;
+ const latest = graded.reduce((result, attempt) => {
+  if (!Number.isFinite(attempt.score)) return result;
+  return !result || timestamp(attempt) > timestamp(result) ? attempt : result;
+ }, null);
+ const title = tr("Последний результат");
+
+ if (!latest) {
+  return `<div class="dashboard-result-wrap">
+   <div class="dashboard-result-card">
+    <span class="dashboard-result-label">${title}</span>
+    <p>${tr("Пока нет результатов")}</p>
+   </div>
+  </div>`;
+ }
+
+ const progress = Math.min(100, Math.max(0, latest.score));
+ return `<div class="dashboard-result-wrap">
+  <a class="dashboard-result-card" href="#result/${esc(encodeURIComponent(latest.id))}">
+   <span class="dashboard-result-label">${title} ${icon('chart')}</span>
+   <span class="dashboard-result-score"><strong>${latest.score}</strong> / 100</span>
+   <span class="dashboard-result-track" aria-hidden="true"><span style="width:${progress}%"></span></span>
+   <span class="dashboard-result-action">${tr("Открыть работу")} ${icon('arrow')}</span>
+  </a>
+ </div>`;
+}
 function studentHome(main,subjectsOnly=false){
  const graded=state.attempts.filter(a=>a.status==='graded'),pending=state.attempts.filter(a=>a.status==='pending');
  const avg=graded.length?Math.round(graded.reduce((n,a)=>n+a.score,0)/graded.length):'—';
  const intro=subjectsOnly
   ? heading(tr("Мои предметы"),tr("Выберите дисциплину, чтобы перейти к теории и практике."))
-  : overview(`${tr("Сәлем,")} ${state.user.name.split(' ')[0]}`,tr("Каждая попытка — шаг к уверенному владению профессией."),`<a class="btn primary" href="#subjects">${icon('book')} ${tr("Мои предметы")} ${icon('arrow')}</a>`);
+  : overview(`${tr("Сәлем,")} ${state.user.name.split(' ')[0]}`,tr("Каждая попытка — шаг к уверенному владению профессией."),`<a class="btn primary" href="#subjects">${icon('book')} ${tr("Мои предметы")} ${icon('arrow')}</a>`,latestResult(graded));
  main.innerHTML=intro+(subjectsOnly?'':stats([[tr("Средний результат"),`${avg}<span> / 100</span>`,tr("По завершённым работам"),'chart','#results',avg],[tr("Завершено работ"),graded.length,tr("Теория и проверенная практика"),'check','#results'],[tr("Ожидают проверки"),pending.length,tr("Практические работы"),'clock']]))+`<div class="section-head"><h2>${tr("Учебные дисциплины")}</h2><small>${tr("Программа / Разработка ПО")}</small></div>`+cards();
  if(!subjectsOnly)main.insertAdjacentHTML('beforeend',`<div class="section-head"><h2>${tr("Последние работы")}</h2><a class="text-button" href="#results">${tr("Все результаты →")}</a></div><div class="card">${attemptsTable(state.attempts.slice(0,4))}</div>`);
 }
