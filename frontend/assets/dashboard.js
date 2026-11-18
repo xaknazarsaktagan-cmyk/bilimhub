@@ -1,3 +1,4 @@
+import {mountActivity} from './dashboard-activity.js';
 import {mountPreferences} from './settings.js';
 import {tr,formatDate,localizeQuestion} from './i18n.js';
 import {$,$$,esc,api,setCsrf,roles,icon,status,date,toast,busy} from './common.js';
@@ -109,6 +110,8 @@ export async function route(){
   else if(state.user.role==='student')await studentPage(main,view,id);
   else if(state.user.role==='teacher')await teacherPage(main,view,id);
   else await adminPage(main,view,id);
+  const statistics=main.querySelector(':scope > .stats');
+  if(view==='home' && version===routeVersion && statistics)mountActivity(statistics,state.attempts);
  }catch(e){if(e.status===401){location.href='/';return;}main.innerHTML=`<div class="card pad"><h2>${tr("Не удалось открыть страницу")}</h2><p class="error">${esc(e.message)}</p><a href="#home" class="btn">${tr("Вернуться к обзору")}</a></div>`;}
 }
 try{
