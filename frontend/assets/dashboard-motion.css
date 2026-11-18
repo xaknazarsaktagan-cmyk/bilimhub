@@ -30,16 +30,21 @@ html:lang(kk) .dashboard-loading [lang="ru"] {
   display: none;
 }
 
+@font-face {
+  font-family: "Bilim Manrope";
+  src: url("./fonts/manrope-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+
 .dashboard-wordmark {
   display: inline-flex;
   color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
-  font-style: italic;
+  font-family: "Bilim Manrope", system-ui, sans-serif;
   font-size: clamp(54px, 11vw, 98px);
-  font-weight: 700;
-  letter-spacing: -.045em;
+  font-weight: 800;
+  gap: .055em;
   line-height: 1.16;
-  padding-inline-end: .12em;
 }
 
 html[data-theme="dark"] .dashboard-wordmark { color: #fff; }

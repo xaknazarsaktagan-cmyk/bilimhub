@@ -21,8 +21,8 @@ function reviews(main){
 function blankQuestion(){return {text:'',options:['','','',''],correct:0,explanation:''};}
 async function edit(main,id){
  const isNew=id==='new';if(!state.subjects.length){main.innerHTML=empty(tr("Предметы ещё не назначены"),tr("Обратитесь к администратору, чтобы получить доступ к дисциплинам."));return;}
- let t=isNew?{subject_id:state.subjects[0].id,kind:'theory',title:'',description:'',published:false,content:{questions:Array.from({length:20},blankQuestion)}}:await api('/tests/'+id);
- main.innerHTML=`<a class="back" href="#tests">← ${tr("К списку тестов")}</a>`+heading(isNew?tr("Новый тест"):tr("Редактирование теста"),tr("Изменения не влияют на уже начатые и отправленные работы."))+`<form id="test-form"><div class="card pad mb"><div class="grid two"><div class="field"><label for="subject">${tr("Предмет")}</label><select id="subject" ${isNew?'':'disabled'}>${state.subjects.map(s=>`<option value="${s.id}" ${s.id===t.subject_id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div><div class="field"><label for="kind">${tr("Тип задания")}</label><select id="kind" ${isNew?'':'disabled'}><option value="theory" ${t.kind==='theory'?'selected':''}>${tr("Теория — 20 вопросов")}</option><option value="practice" ${t.kind==='practice'?'selected':''}>${tr("Практика — JavaScript")}</option></select></div></div><div class="field"><label for="title">${tr("Название")}</label><input id="title" class="input" required minlength="3" maxlength="150" value="${esc(t.title)}" placeholder="${tr("Например: Основы ООП")}"></div><div class="field"><label for="description">${tr("Описание / условие задания")}</label><textarea id="description" rows="4" maxlength="6000">${esc(t.description)}</textarea></div></div><div id="editor-body"></div><div class="sticky-actions"><div class="row between wrap"><label class="row" style="font-size:12px"><input type="checkbox" id="published" ${t.published?'checked':''} style="accent-color:var(--accent)"> ${tr("Опубликовать для студентов")}</label><div class="row"><a class="btn" href="#tests">${tr("Отмена")}</a><button class="btn primary" type="submit">${tr("Сохранить тест")}</button></div></div><p class="error hidden" id="edit-error" role="alert"></p></div></form>`;
+ let t=isNew?{kind:'theory',title:'',description:'',published:false,content:{questions:Array.from({length:20},blankQuestion)}}:await api('/tests/'+id);
+ main.innerHTML=`<a class="back" href="#tests">← ${tr("К списку тестов")}</a>`+heading(isNew?tr("Новый тест"):tr("Редактирование теста"),tr("Изменения не влияют на уже начатые и отправленные работы."))+`<form id="test-form"><div class="card pad mb"><div class="grid two"><div class="field"><label for="subject">${tr("Предмет")}</label><input id="subject" class="input" type="text" ${isNew?'required':'readonly'} value="${esc(state.subjects.find(s=>s.id===t.subject_id)?.name || t.subject_name || '')}" ${isNew?`placeholder="${esc(tr("Введите название предмета"))}" aria-describedby="subject-hint"`:''}>${isNew?`<small class="caption" id="subject-hint">${tr("Введите название одного из назначенных вам предметов.")}</small>`:''}</div><div class="field"><label for="kind">${tr("Тип задания")}</label><select id="kind" ${isNew?'':'disabled'}><option value="theory" ${t.kind==='theory'?'selected':''}>${tr("Теория — 20 вопросов")}</option><option value="practice" ${t.kind==='practice'?'selected':''}>${tr("Практика — JavaScript")}</option></select></div></div><div class="field"><label for="title">${tr("Название")}</label><input id="title" class="input" required minlength="3" maxlength="150" value="${esc(t.title)}" placeholder="${tr("Например: Основы ООП")}"></div><div class="field"><label for="description">${tr("Описание / условие задания")}</label><textarea id="description" rows="4" maxlength="6000">${esc(t.description)}</textarea></div></div><div id="editor-body"></div><div class="sticky-actions"><div class="row between wrap"><label class="row" style="font-size:12px"><input type="checkbox" id="published" ${t.published?'checked':''} style="accent-color:var(--accent)"> ${tr("Опубликовать для студентов")}</label><div class="row"><a class="btn" href="#tests">${tr("Отмена")}</a><button class="btn primary" type="submit">${tr("Сохранить тест")}</button></div></div><p class="error hidden" id="edit-error" role="alert"></p></div></form>`;
  const drafts={theory:t.kind==='theory'?t.content:{questions:Array.from({length:20},blankQuestion)},practice:t.kind==='practice'?t.content:{starter:'function solve(value) {\n  return value;\n}',tests:[{args:[1],expected:1}]}};
  function capture(){
   if(t.kind==='theory')drafts.theory.questions=$$('.question-editor').map((card,i)=>({text:$('[data-text]',card).value,options:$$('[data-option]',card).map(x=>x.value),correct:Number($('input[type=radio]:checked',card)?.value??0),explanation:$('[data-explanation]',card).value}));
@@ -35,6 +35,36 @@ async function edit(main,id){
  $('#kind').onchange=()=>{try{capture();t.kind=$('#kind').value;draw();}catch(e){toast(e.message);$('#kind').value=t.kind;}};draw();
  let dirty=false;state.beforeLanguageChange=()=>{state.preserveEditorDirty=dirty;};
  const warn=e=>{if(dirty){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',warn);state.cleanup=()=>window.removeEventListener('beforeunload',warn);$('#test-form').oninput=()=>dirty=true;
- $('#test-form').onsubmit=async e=>{e.preventDefault();const button=$('button[type=submit]',e.target);$('#edit-error').classList.add('hidden');try{capture();await busy(button,async()=>{await api('/tests'+(isNew?'':'/'+id),isNew?'POST':'PUT',{subject_id:Number($('#subject').value),kind:t.kind,title:$('#title').value,description:$('#description').value,published:$('#published').checked,content:drafts[t.kind]});dirty=false;toast(tr("Тест сохранён"));location.hash='tests';});}catch(err){$('#edit-error').textContent=err.message;$('#edit-error').classList.remove('hidden');}};
+ const subjectInput=$('#subject',main);
+ const normalizeSubject=name=>name.normalize('NFC').trim().replace(/\s+/g,' ').toLowerCase();
+ subjectInput.addEventListener('input',()=>subjectInput.setCustomValidity(''));
+ $('#test-form').onsubmit=async e=>{
+  e.preventDefault();
+  const button=$('button[type=submit]',e.target);
+  $('#edit-error').classList.add('hidden');
+  const subjectId=isNew
+   ? state.subjects.find(subject=>normalizeSubject(subject.name)===normalizeSubject(subjectInput.value))?.id
+   : t.subject_id;
+  if(isNew && subjectId===undefined){
+   subjectInput.setCustomValidity(tr("Такого предмета среди назначенных вам нет. Проверьте название."));
+   subjectInput.reportValidity();
+   return;
+  }
+  try{
+   capture();
+   await busy(button,async()=>{
+    await api('/tests'+(isNew?'':'/'+id),isNew?'POST':'PUT',{
+     subject_id:subjectId,kind:t.kind,title:$('#title').value,description:$('#description').value,
+     published:$('#published').checked,content:drafts[t.kind]
+    });
+    dirty=false;
+    toast(tr("Тест сохранён"));
+    location.hash='tests';
+   });
+  }catch(err){
+   $('#edit-error').textContent=err.message;
+   $('#edit-error').classList.remove('hidden');
+  }
+ };
 }
 export async function teacherPage(main,view,id){if(view==='home')home(main);else if(view==='tests')testsPage(main);else if(view==='reviews')reviews(main);else if(view==='edit')await edit(main,id);else main.innerHTML=empty(tr("Страница не найдена"),tr("Выберите раздел в меню."));}
