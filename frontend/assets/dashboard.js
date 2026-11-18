@@ -10,7 +10,7 @@ export function overview(title, subtitle, action) {
  const symbol = {student:'book', teacher:'check', admin:'users'}[state.user.role];
  return `<section class="dashboard-overview">
   <div class="dashboard-intro">
-   <h1>${esc(title)}</h1>
+   <h1 aria-label="${esc(title)}">${title.split(/\s+/).map(word=>`<span class="dashboard-title-word" aria-hidden="true">${esc(word)}</span>`).join(' ')}</h1>
    <p>${esc(subtitle)}</p>
    ${action}
   </div>
@@ -84,6 +84,9 @@ let languageQueue=Promise.resolve();
 document.addEventListener('bilim:language',()=>{languageQueue=languageQueue.catch(()=>{}).then(async()=>{
  await state.beforeLanguageChange?.();const fields=captureForms();const scroll=window.scrollY;shell();await route();restoreForms(fields);window.scrollTo(0,scroll);
 });});
+const dashboardLoading = document.querySelector('.dashboard-loading-screen').cloneNode(true);
+dashboardLoading.classList.remove('dashboard-loading-screen');
+
 let routeVersion=0;
 export async function route(){
  const version=++routeVersion;state.cleanup();state.cleanup=()=>{};state.beforeLanguageChange=null;
@@ -98,11 +101,7 @@ export async function route(){
  $('#crumb').textContent=({home:tr("Обзор"),subjects:tr("Мои предметы"),subject:tr("Предмет"),quiz:tr("Теоретический тест"),practice:tr("Практическое задание"),results:tr("Результаты"),result:tr("Работа"),tests:tr("Управление тестами"),edit:tr("Редактор теста"),reviews:tr("Работы студентов"),users:tr("Пользователи"),profile:tr("Профиль")})[view]||tr("Кабинет");
  const main=$('#main');
  main.dataset.view=view;
- main.innerHTML=`<div class="dashboard-loading" role="status">
-  <span class="dashboard-wordmark" aria-hidden="true">Bilim</span>
-  <span class="dashboard-load-track" aria-hidden="true"></span>
-  <p>${tr("Загрузка…")}</p>
- </div>`;
+ main.replaceChildren(dashboardLoading.cloneNode(true));
  try{
   await refresh();if(version!==routeVersion)return;
   if(view==='profile')await profile(main);

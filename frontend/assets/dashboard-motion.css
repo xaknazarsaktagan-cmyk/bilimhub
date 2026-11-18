@@ -14,43 +14,56 @@
   min-height: 100svh;
 }
 
-html:lang(ru) .dashboard-loading-screen [lang="kk"],
-html:lang(kk) .dashboard-loading-screen [lang="ru"] {
+@font-face {
+  font-family: "Bilim Manrope";
+  src: url("./fonts/manrope-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+.dashboard-loading p {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+html:lang(ru) .dashboard-loading [lang="kk"],
+html:lang(kk) .dashboard-loading [lang="ru"] {
   display: none;
 }
 
 .dashboard-wordmark {
+  display: inline-flex;
   color: var(--ink);
-  font-size: clamp(38px, 8vw, 64px);
-  font-weight: 750;
-  letter-spacing: -.075em;
-  line-height: 1;
+  font-family: "Bilim Manrope", system-ui, sans-serif;
+  font-size: clamp(54px, 11vw, 98px);
+  font-weight: 800;
+  letter-spacing: -.085em;
+  line-height: 1.16;
+  padding-inline-end: .085em;
 }
 
-.dashboard-load-track {
-  display: block;
-  width: 128px;
-  height: 3px;
-  overflow: hidden;
-  border-radius: 8px;
-  background: var(--line);
+html[data-theme="dark"] .dashboard-wordmark { color: #fff; }
+
+.dashboard-wordmark > span {
+  opacity: .22;
+  animation: dashboard-letter-light 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--letter, 0) * 140ms);
 }
 
-.dashboard-load-track::before {
-  content: "";
-  display: block;
-  width: 55%;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-  animation: dashboard-load 1.25s ease-in-out infinite;
-}
+.dashboard-wordmark > :nth-child(2) { --letter: 1; }
+.dashboard-wordmark > :nth-child(3) { --letter: 2; }
+.dashboard-wordmark > :nth-child(4) { --letter: 3; }
+.dashboard-wordmark > :nth-child(5) { --letter: 4; }
 
-.dashboard-loading p { margin: 0; }
-
-@keyframes dashboard-load {
-  from { transform: translateX(-105%); }
-  to { transform: translateX(185%); }
+@keyframes dashboard-letter-light {
+  0%, 45%, 100% { opacity: .22; }
+  18% { opacity: 1; }
 }
 
 .dashboard-overview {
@@ -240,7 +253,7 @@ body[data-role] .modal .btn:not(:disabled):active {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  #main[data-view="home"] > :is(.dashboard-overview, .stats, .section-head, .grid) {
+  #main[data-view="home"] > :is(.dashboard-overview, .stats) {
     animation: dashboard-enter 320ms ease-out both;
   }
 
@@ -291,8 +304,8 @@ body[data-role] .modal .btn:not(:disabled):active {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dashboard-load-track::before, body[data-role] .spinner { animation: none; }
-  .dashboard-load-track::before { margin-inline: auto; }
+  .dashboard-wordmark > span, body[data-role] .spinner { animation: none; }
+  .dashboard-wordmark > span { opacity: 1; }
 
   #app :is(.btn, .nav-link),
   #main :is(.stat, .dashboard-stat-icon),
@@ -307,5 +320,42 @@ body[data-role] .modal .btn:not(:disabled):active {
 
   #main .stat:hover .dashboard-stat-icon {
     transform: perspective(150px) rotateX(12deg) rotateY(-14deg);
+  }
+}
+
+
+.dashboard-title-word {
+  display: inline-block;
+  max-width: 100%;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .dashboard-intro h1 { view-timeline-name: --dashboard-title; }
+
+    .dashboard-title-word {
+      --entry-x: -0.45em;
+      animation: dashboard-word-arrive linear both;
+      animation-timeline: --dashboard-title;
+      animation-range: entry 0% entry 100%;
+    }
+
+    .dashboard-title-word:nth-child(even) { --entry-x: 0.45em; }
+
+    #main[data-view="home"] > .section-head h2 {
+      animation: dashboard-section-arrive linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+
+    @keyframes dashboard-word-arrive {
+      from { opacity: .45; transform: translate(var(--entry-x), .5em) rotate(-4deg) scale(.94); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes dashboard-section-arrive {
+      from { opacity: .5; transform: translateX(-16px) scale(.94); }
+      to { opacity: 1; transform: none; }
+    }
   }
 }
