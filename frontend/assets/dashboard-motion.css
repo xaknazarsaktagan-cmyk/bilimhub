@@ -1,0 +1,183 @@
+/* Depth and motion for the three role dashboards. */
+.dashboard-loading {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 18px;
+  min-height: 240px;
+  padding: 32px;
+  color: var(--muted);
+  perspective: 420px;
+}
+
+.dashboard-loading-screen {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+html:lang(ru) .dashboard-loading-screen [lang="kk"],
+html:lang(kk) .dashboard-loading-screen [lang="ru"] {
+  display: none;
+}
+
+.dashboard-loader {
+  position: relative;
+  display: block;
+  width: 32px;
+  height: 32px;
+  margin: 8px;
+  transform-style: preserve-3d;
+  transform: rotateX(-27deg) rotateY(-34deg);
+  animation: dashboard-cube 1.5s ease-in-out infinite alternate;
+}
+
+.dashboard-loader i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--accent), var(--line) 45%);
+  border-radius: 4px;
+  background: var(--soft);
+  backface-visibility: hidden;
+}
+
+.dashboard-loader i:nth-child(1) { transform: translateZ(16px); }
+.dashboard-loader i:nth-child(2) {
+  transform: rotateY(90deg) translateZ(16px);
+  background: color-mix(in srgb, var(--accent), var(--paper) 70%);
+}
+.dashboard-loader i:nth-child(3) {
+  transform: rotateX(90deg) translateZ(16px);
+  background: var(--paper);
+}
+
+@keyframes dashboard-cube {
+  to { transform: translateY(-7px) rotateX(-38deg) rotateY(-60deg); }
+}
+
+#main[data-view="home"] > .page-heading {
+  position: relative;
+  padding-block: 8px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+#main[data-view="home"] > .page-heading::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 44px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+#main .stat {
+  min-width: 0;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+#main .stat-label {
+  align-items: center;
+  gap: 8px;
+}
+
+#main .stat-value { font-variant-numeric: tabular-nums; }
+#main .stat-foot { color: var(--muted); }
+
+.dashboard-stat-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 2px 3px 0 var(--line);
+  transform: perspective(150px) rotateX(12deg) rotateY(-14deg);
+  transition: transform 200ms ease, color 200ms ease;
+}
+
+#app :is(.btn, .nav-link, .text-button, .subject-card):focus-visible,
+body[data-role] .modal .btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #main .stat:hover {
+    border-color: color-mix(in srgb, var(--accent), var(--line) 68%);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+
+  #main .stat:hover .dashboard-stat-icon {
+    color: var(--accent);
+    transform: perspective(150px) translateY(-3px) rotateX(0) rotateY(0);
+  }
+
+  #app .btn:not(:disabled):hover,
+  body[data-role] .modal .btn:not(:disabled):hover {
+    translate: 0 -2px;
+  }
+
+  #main .table tbody tr:hover { background: var(--bg); }
+}
+
+#app .btn:not(:disabled):active,
+body[data-role] .modal .btn:not(:disabled):active {
+  translate: 0 1px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #main[data-view="home"] > :is(.page-heading, .stats) {
+    animation: dashboard-enter 320ms ease-out both;
+  }
+
+  #main[data-view="home"] > .stats { animation-delay: 60ms; }
+
+  @keyframes dashboard-enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@media (max-width: 600px) {
+  #main[data-view="home"] > .page-heading { flex-wrap: wrap; }
+
+  .dashboard-stat-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  #main .dashboard-stat-icon .icon {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  #main .stat-label {
+    align-items: flex-start;
+    flex-direction: column-reverse;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-loader, body[data-role] .spinner { animation: none; }
+
+  #app :is(.btn, .nav-link),
+  #main :is(.stat, .dashboard-stat-icon),
+  body[data-role] .modal .btn {
+    transition: none;
+  }
+
+  #app .btn:not(:disabled):is(:hover, :active),
+  body[data-role] .modal .btn:not(:disabled):is(:hover, :active) {
+    translate: none;
+  }
+
+  #main .stat:hover .dashboard-stat-icon {
+    transform: perspective(150px) rotateX(12deg) rotateY(-14deg);
+  }
+}

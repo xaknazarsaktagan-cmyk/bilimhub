@@ -1,12 +1,12 @@
 import {mountPreferences} from './settings.js';
-import {tr,markup,locale,formatDate,localizeQuestion} from './i18n.js';
+import {tr,formatDate,localizeQuestion} from './i18n.js';
 import {$,$$,esc,api,setCsrf,roles,icon,status,date,toast,busy} from './common.js';
 import {studentPage} from './student.js';
 import {teacherPage} from './teacher.js';
 import {adminPage} from './admin.js';
 export const state={user:null,subjects:[],tests:[],attempts:[],cleanup:()=>{}};
 export function heading(title,subtitle,action=''){return `<div class="page-heading"><div><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div>${action}</div>`;}
-export function stats(items){return `<div class="stats">${items.map(([label,value,foot,i])=>`<div class="card stat"><div class="stat-label">${esc(label)}${icon(i||'chart')}</div><div class="stat-value">${value}</div><div class="stat-foot">${esc(foot)}</div></div>`).join('')}</div>`;}
+export function stats(items){return `<div class="stats">${items.map(([label,value,foot,i])=>`<div class="card stat"><div class="stat-label">${esc(label)}<span class="dashboard-stat-icon" aria-hidden="true">${icon(i||'chart')}</span></div><div class="stat-value">${value}</div><div class="stat-foot">${esc(foot)}</div></div>`).join('')}</div>`;}
 export const empty=(title,text)=>`<div class="empty"><h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
 export function attemptsTable(rows,teacher=false){
  if(!rows.length)return empty(tr("Пока нет результатов"),tr("Здесь появятся отправленные работы."));
@@ -61,7 +61,12 @@ export async function route(){
  const [view,id]=(location.hash.slice(1)||'home').split('/');
  $$('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===view||(view==='subject'&&a.dataset.nav==='subjects')||(['quiz','practice'].includes(view)&&a.dataset.nav==='subjects')||(view==='result'&&a.dataset.nav===(state.user.role==='teacher'?'reviews':'results'))||(view==='edit'&&a.dataset.nav==='tests')));
  $('#crumb').textContent=({home:tr("Обзор"),subjects:tr("Мои предметы"),subject:tr("Предмет"),quiz:tr("Теоретический тест"),practice:tr("Практическое задание"),results:tr("Результаты"),result:tr("Работа"),tests:tr("Управление тестами"),edit:tr("Редактор теста"),reviews:tr("Работы студентов"),users:tr("Пользователи"),profile:tr("Профиль")})[view]||tr("Кабинет");
- const main=$('#main');main.innerHTML=markup("<div class=\"loading\"><span class=\"spinner\"></span><p>Загрузка…</p></div>");
+ const main=$('#main');
+ main.dataset.view=view;
+ main.innerHTML=`<div class="dashboard-loading" role="status">
+  <span class="dashboard-loader" aria-hidden="true"><i></i><i></i><i></i></span>
+  <p>${tr("Загрузка…")}</p>
+ </div>`;
  try{
   await refresh();if(version!==routeVersion)return;
   if(view==='profile')await profile(main);
