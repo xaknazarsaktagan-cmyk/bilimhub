@@ -6,7 +6,36 @@ import {teacherPage} from './teacher.js';
 import {adminPage} from './admin.js';
 export const state={user:null,subjects:[],tests:[],attempts:[],cleanup:()=>{}};
 export function heading(title,subtitle,action=''){return `<div class="page-heading"><div><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div>${action}</div>`;}
-export function stats(items){return `<div class="stats">${items.map(([label,value,foot,i])=>`<div class="card stat"><div class="stat-label">${esc(label)}<span class="dashboard-stat-icon" aria-hidden="true">${icon(i||'chart')}</span></div><div class="stat-value">${value}</div><div class="stat-foot">${esc(foot)}</div></div>`).join('')}</div>`;}
+export function overview(title, subtitle, action) {
+ const symbol = {student:'book', teacher:'check', admin:'users'}[state.user.role];
+ return `<section class="dashboard-overview">
+  <div class="dashboard-intro">
+   <h1>${esc(title)}</h1>
+   <p>${esc(subtitle)}</p>
+   ${action}
+  </div>
+  <div class="dashboard-art" aria-hidden="true">
+   <div class="dashboard-orbit"></div>
+   <div class="dashboard-sculpture">
+    <span class="dashboard-sculpture-base"></span>
+    <span class="dashboard-sculpture-layer"></span>
+    <span class="dashboard-sculpture-face">${icon(symbol)}</span>
+   </div>
+  </div>
+ </section>`;
+}
+export function stats(items) {
+ return `<div class="stats">${items.map(([label, value, foot, symbol, href, progress]) => {
+  const tag = href ? 'a' : 'div';
+  const meter = Number.isFinite(progress) ? `<meter class="dashboard-meter" aria-label="${esc(label)}" value="${Math.max(0, Math.min(100, progress))}" min="0" max="100"></meter>` : '';
+  return `<${tag} class="card stat"${href ? ` href="${esc(href)}"` : ''}>
+   <div class="stat-label">${esc(label)}<span class="dashboard-stat-icon" aria-hidden="true">${icon(symbol || 'chart')}</span></div>
+   <div class="stat-value">${value}</div>
+   <div class="stat-foot">${esc(foot)}</div>
+   ${meter}
+  </${tag}>`;
+ }).join('')}</div>`;
+}
 export const empty=(title,text)=>`<div class="empty"><h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
 export function attemptsTable(rows,teacher=false){
  if(!rows.length)return empty(tr("Пока нет результатов"),tr("Здесь появятся отправленные работы."));
@@ -59,12 +88,19 @@ let routeVersion=0;
 export async function route(){
  const version=++routeVersion;state.cleanup();state.cleanup=()=>{};state.beforeLanguageChange=null;
  const [view,id]=(location.hash.slice(1)||'home').split('/');
- $$('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===view||(view==='subject'&&a.dataset.nav==='subjects')||(['quiz','practice'].includes(view)&&a.dataset.nav==='subjects')||(view==='result'&&a.dataset.nav===(state.user.role==='teacher'?'reviews':'results'))||(view==='edit'&&a.dataset.nav==='tests')));
+ const activeView=({subject:'subjects',quiz:'subjects',practice:'subjects',result:state.user.role==='teacher'?'reviews':'results',edit:'tests'})[view]||view;
+ $$('[data-nav]').forEach(link=>{
+  const active=link.dataset.nav===activeView;
+  link.classList.toggle('active',active);
+  if(active)link.setAttribute('aria-current','page');
+  else link.removeAttribute('aria-current');
+ });
  $('#crumb').textContent=({home:tr("Обзор"),subjects:tr("Мои предметы"),subject:tr("Предмет"),quiz:tr("Теоретический тест"),practice:tr("Практическое задание"),results:tr("Результаты"),result:tr("Работа"),tests:tr("Управление тестами"),edit:tr("Редактор теста"),reviews:tr("Работы студентов"),users:tr("Пользователи"),profile:tr("Профиль")})[view]||tr("Кабинет");
  const main=$('#main');
  main.dataset.view=view;
  main.innerHTML=`<div class="dashboard-loading" role="status">
-  <span class="dashboard-loader" aria-hidden="true"><i></i><i></i><i></i></span>
+  <span class="dashboard-wordmark" aria-hidden="true">Bilim</span>
+  <span class="dashboard-load-track" aria-hidden="true"></span>
   <p>${tr("Загрузка…")}</p>
  </div>`;
  try{

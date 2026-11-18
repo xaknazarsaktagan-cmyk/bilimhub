@@ -1,12 +1,15 @@
 import {tr,markup,locale,localizeQuestion} from './i18n.js';
 import {$,$$,esc,api,icon,date,status,toast,busy,confirmAction} from './common.js';
-import {state,heading,stats,empty,attemptsTable,exportCSV} from './dashboard.js';
+import {state,heading,overview,stats,empty,attemptsTable,exportCSV} from './dashboard.js';
 const subjectIcons=['code','grid','mobile','database','book'];
 function cards(){return `<div class="grid three">${state.subjects.map((s,i)=>{const tests=state.tests.filter(t=>t.subject_id===s.id),done=state.attempts.filter(a=>a.subject_id===s.id&&a.status==='graded');return `<a class="card subject-card" href="#subject/${s.id}"><div class="subject-top"><span class="subject-icon">${icon(subjectIcons[i])}</span><span class="subject-number">${s.number}</span></div><h3>${esc(s.name)}</h3><p>${esc(tr(s.description))}</p><div class="subject-bottom"><small>${tests.filter(t=>t.kind==='theory').length} ${tr("теория ·")} ${tests.filter(t=>t.kind==='practice').length} ${tr("практика")}${done.length?' · '+done.length+tr(" завершено"):''}</small><span class="arrow">↗</span></div></a>`;}).join('')}</div>`;}
 function studentHome(main,subjectsOnly=false){
  const graded=state.attempts.filter(a=>a.status==='graded'),pending=state.attempts.filter(a=>a.status==='pending');
  const avg=graded.length?Math.round(graded.reduce((n,a)=>n+a.score,0)/graded.length):'—';
- main.innerHTML=heading(subjectsOnly?tr("Мои предметы"):`${tr("Сәлем,")} ${state.user.name.split(' ')[0]} `,subjectsOnly?tr("Выберите дисциплину, чтобы перейти к теории и практике."):tr("Каждая попытка — шаг к уверенному владению профессией."),`<span class="badge purple">${icon('book')} 5 ${tr("дисциплин")}</span>`)+(subjectsOnly?'':stats([[tr("Средний результат"),`${avg}<span> / 100</span>`,tr("По завершённым работам"),'chart'],[tr("Завершено работ"),graded.length,tr("Теория и проверенная практика"),'check'],[tr("Ожидают проверки"),pending.length,tr("Практические работы"),'clock']]))+`<div class="section-head"><h2>${tr("Учебные дисциплины")}</h2><small>${tr("Программа / Разработка ПО")}</small></div>`+cards();
+ const intro=subjectsOnly
+  ? heading(tr("Мои предметы"),tr("Выберите дисциплину, чтобы перейти к теории и практике."))
+  : overview(`${tr("Сәлем,")} ${state.user.name.split(' ')[0]}`,tr("Каждая попытка — шаг к уверенному владению профессией."),`<a class="btn primary" href="#subjects">${icon('book')} ${tr("Мои предметы")} ${icon('arrow')}</a>`);
+ main.innerHTML=intro+(subjectsOnly?'':stats([[tr("Средний результат"),`${avg}<span> / 100</span>`,tr("По завершённым работам"),'chart','#results',avg],[tr("Завершено работ"),graded.length,tr("Теория и проверенная практика"),'check','#results'],[tr("Ожидают проверки"),pending.length,tr("Практические работы"),'clock']]))+`<div class="section-head"><h2>${tr("Учебные дисциплины")}</h2><small>${tr("Программа / Разработка ПО")}</small></div>`+cards();
  if(!subjectsOnly)main.insertAdjacentHTML('beforeend',`<div class="section-head"><h2>${tr("Последние работы")}</h2><a class="text-button" href="#results">${tr("Все результаты →")}</a></div><div class="card">${attemptsTable(state.attempts.slice(0,4))}</div>`);
 }
 async function subject(main,id){
